@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>G-Drive Direct Link Generator</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		body {
+			background-color: #0f172a;
+			color: #f1f5f9;
+		}
+		.glass {
+			background: rgba(30, 41, 59, 0.7);
+			backdrop-filter: blur(10px);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+	</style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+	<div class="max-w-2xl w-full glass p-8 rounded-2xl shadow-2xl">
+		<div class="flex items-center gap-3 mb-6">
+			<div class="bg-blue-500 p-2 rounded-lg">
+				<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="ResourceLocation 7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+				</svg>
+			</div>
+			<h1 class="text-2xl font-bold">Direct download link converter</h1>
+		</div>
+
+		<p class="text-slate-400 mb-8">Insert the share link from Google Drive and get a direct download link</p>
+
+		<div class="space-y-6">
+			<div>
+				<label class="block text-sm font-medium text-slate-300 mb-2">Insert Google Drive link:</label>
+				<input type="text" id="inputUrl" 
+					placeholder="https://drive.google.com/file/d/..." 
+					class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+			</div>
+
+			<div id="resultContainer" class="hidden animate-in fade-in duration-500">
+				<label class="block text-sm font-medium text-slate-300 mb-2">Direct download link:</label>
+				<div class="relative">
+					<input type="text" id="resultUrl" readonly
+						class="w-full bg-slate-800 border border-blue-500/30 rounded-xl px-4 py-3 pr-24 text-green-400 font-mono text-sm overflow-ellipsis">
+					<button onclick="copyToClipboard()" 
+						class="absolute right-2 top-2 bottom-2 bg-blue-600 hover:bg-blue-500 text-white px-4 rounded-lg text-xs font-bold transition-colors">
+						COPY
+					</button>
+				</div>
+				<p class="text-xs text-yellow-500 mt-3 flex items-center gap-1">
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+						<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+					</svg>
+					Don't forget to set your Drive to "Anyone with the link can download".
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-full shadow-lg opacity-0 transition-opacity pointer-events-none">
+		Copied to clipboard!
+	</div>
+
+	<script>
+		const inputUrl = document.getElementById('inputUrl');
+		const resultContainer = document.getElementById('resultContainer');
+		const resultUrl = document.getElementById('resultUrl');
+		const toast = document.getElementById('toast');
+
+		inputUrl.addEventListener('input', () => {
+			const url = inputUrl.value.trim();
+			// Regex for extracting IDs from various G-Drive link formats
+			const match = url.match(/\/d\/([a-zA-Z0-9_-]{25,})[/?]?/);
+			
+			if (match && match[1]) {
+				const fileId = match[1];
+				const directUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+				resultUrl.value = directUrl;
+				resultContainer.classList.remove('hidden');
+			} else if (url === "") {
+				resultContainer.classList.add('hidden');
+			}
+		});
+
+		function copyToClipboard() {
+			resultUrl.select();
+			document.execCommand('copy');
+			
+			toast.style.opacity = '1';
+			setTimeout(() => {
+				toast.style.opacity = '0';
+			}, 2000);
+		}
+	</script>
+</body>
+</html>
